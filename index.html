@@ -161,6 +161,7 @@
   .player-icon-btn.loop-active { background:var(--accent-cyan);color:var(--bg-dark); }
   .player-icon-btn.fs-active { background:var(--accent-yellow);color:var(--bg-dark); }
   .player-icon-btn.pip-active { background:var(--accent-purple);color:#fff; }
+  .player-icon-btn.silent-active { background:var(--accent-green);color:var(--bg-dark); }
   .player-icon-btn svg { display:block;pointer-events:none; }
 
   .video-container { flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;touch-action:none; }
@@ -374,15 +375,27 @@
   <div style="display:flex;flex-direction:column;gap:16px;">
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:18px;padding:18px;">
       <h3 style="font-size:15px;margin-bottom:14px;">Playback</h3>
-      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>🔁 Auto Loop</span><input type="checkbox" id="settingLoop" checked onchange="settings.loop=this.checked" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>📋 Auto-play Next</span><input type="checkbox" id="settingAutoNext" checked onchange="settings.autoNext=this.checked" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>🔀 Shuffle Playback</span><input type="checkbox" id="settingShuffle" onchange="settings.shuffle=this.checked" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;font-size:14px;"><span>📱 Auto Landscape FS</span><input type="checkbox" id="settingAutoLandscape" checked onchange="settings.autoLandscape=this.checked" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>🔁 Auto Loop</span><input type="checkbox" id="settingLoop" checked onchange="settings.loop=this.checked;saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>📋 Auto-play Next</span><input type="checkbox" id="settingAutoNext" checked onchange="settings.autoNext=this.checked;saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>🔀 Shuffle Playback</span><input type="checkbox" id="settingShuffle" onchange="settings.shuffle=this.checked;saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span title="Plays videos muted so your podcast/music keeps playing">🔇 Silent Mode <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(saved — applies to every video)</span></span><input type="checkbox" id="settingSilent" onchange="settings.silent=this.checked;applySilent();saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-green);"></label>
+      <div style="margin:-6px 0 12px;padding:10px 12px;background:rgba(34,255,136,0.05);border:1px solid rgba(34,255,136,0.15);border-radius:10px;">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">↳ When using PiP with Silent Mode</div>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;margin-bottom:6px;cursor:pointer;">
+          <input type="radio" name="silentPipMode" value="capture" onchange="settings.silentPipMode=this.value;settings.silentPipModeUserSet=true;saveSettings();" style="margin-top:3px;accent-color:var(--accent-green);flex-shrink:0;">
+          <span><strong>Free audio (browser only)</strong><br><span style="font-size:11px;color:var(--text-muted);">Audio truly free for other apps. PiP closes if you minimize Chrome.</span></span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer;">
+          <input type="radio" name="silentPipMode" value="direct" onchange="settings.silentPipMode=this.value;settings.silentPipModeUserSet=true;saveSettings();" style="margin-top:3px;accent-color:var(--accent-yellow);flex-shrink:0;">
+          <span><strong>Float over apps</strong><br><span style="font-size:11px;color:var(--text-muted);">PiP survives minimizing Chrome &amp; floats over other apps. Chrome may briefly grab audio focus.</span></span>
+        </label>
+      </div>
+      <label style="display:flex;align-items:center;justify-content:space-between;font-size:14px;"><span>📱 Auto Landscape FS</span><input type="checkbox" id="settingAutoLandscape" checked onchange="settings.autoLandscape=this.checked;saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
     </div>
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:18px;padding:18px;">
       <h3 style="font-size:15px;margin-bottom:14px;">Mystery Grid</h3>
-      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>✨ Animations</span><input type="checkbox" id="settingRevealAnim" checked onchange="settings.revealAnim=this.checked" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
-      <label style="display:flex;align-items:center;justify-content:space-between;font-size:14px;"><span>🏷️ Show Names</span><input type="checkbox" id="settingShowNames" onchange="settings.showNames=this.checked;renderMysteryGrid()" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:14px;"><span>✨ Animations</span><input type="checkbox" id="settingRevealAnim" checked onchange="settings.revealAnim=this.checked;saveSettings();" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
+      <label style="display:flex;align-items:center;justify-content:space-between;font-size:14px;"><span>🏷️ Show Names</span><input type="checkbox" id="settingShowNames" onchange="settings.showNames=this.checked;saveSettings();renderMysteryGrid()" style="width:20px;height:20px;accent-color:var(--accent-cyan);"></label>
     </div>
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:18px;padding:18px;">
       <h3 style="font-size:15px;margin-bottom:14px;">Gestures</h3>
@@ -393,6 +406,7 @@
         <div>👈👉 <strong style="color:var(--text-primary)">Swipe</strong> — next/prev video</div>
         <div>📱 <strong style="color:var(--text-primary)">Rotate</strong> — auto fullscreen</div>
         <div>📺 <strong style="color:var(--text-primary)">PiP button</strong> — floating window (keeps playing when you close the player)</div>
+        <div>🔇 <strong style="color:var(--text-primary)">Silent button</strong> — mute video so music/podcast keeps playing in another app</div>
       </div>
     </div>
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:18px;padding:18px;">
@@ -409,6 +423,7 @@
     <div class="player-title" id="playerTitle">Video</div>
     <div class="player-top-actions">
       <button class="player-icon-btn loop-active" id="loopBtn" onclick="toggleLoop()">🔁</button>
+      <button class="player-icon-btn" id="silentBtn" onclick="toggleSilent()" title="Silent mode (free audio channel for other apps)" aria-label="Silent mode">🔊</button>
       <button class="player-icon-btn" id="pipBtn" onclick="togglePictureInPicture()" title="Picture-in-Picture" aria-label="Picture-in-Picture"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="12" width="7" height="5" rx="1" fill="currentColor" stroke="none"/></svg></button>
       <button class="player-icon-btn" id="fullscreenBtn" onclick="toggleLandscapeFullscreen()">⛶</button>
     </div>
@@ -461,7 +476,51 @@ var playlistOrder = [];
 var pendingUrls = []; // temp for URL modal
 var currentPlayerType = 'video'; // 'video' or 'youtube'
 
-var settings = { loop:true, autoNext:true, shuffle:false, revealAnim:true, showNames:false, autoLandscape:true };
+// ── PERSISTENT SETTINGS ──
+// Settings are stored in localStorage so they survive page reloads. Flip "Silent Mode" once
+// in the Settings page and it stays on every time you open the app — no need to retoggle
+// after each video. Same applies to all other toggles (loop, autoNext, shuffle, etc.).
+var SETTINGS_STORAGE_KEY = 'mysteryPlayer.settings.v1';
+var DEFAULT_SETTINGS = { loop:true, autoNext:true, shuffle:false, revealAnim:true, showNames:false, autoLandscape:true, silent:false, silentPipMode:'direct', silentPipModeUserSet:false };
+function loadSettings(){
+  try{
+    var raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if(raw){
+      var parsed = JSON.parse(raw);
+      // Merge with defaults so any keys added in later versions get sensible values
+      var out = {}; for(var k in DEFAULT_SETTINGS) out[k] = DEFAULT_SETTINGS[k];
+      for(var k2 in parsed) if(k2 in DEFAULT_SETTINGS) out[k2] = parsed[k2];
+      // One-time migration: earlier versions defaulted silentPipMode to 'capture' which closes
+      // PiP whenever Chrome is backgrounded. Unless the user has explicitly opted into 'capture'
+      // (recorded by a separate flag we set when they actually toggle the radio), bump them to
+      // the new 'direct' default so PiP floats over other apps as expected.
+      if(parsed.silentPipMode === 'capture' && !parsed.silentPipModeUserSet){
+        out.silentPipMode = 'direct';
+      }
+      return out;
+    }
+  }catch(e){}
+  var fresh = {}; for(var k in DEFAULT_SETTINGS) fresh[k] = DEFAULT_SETTINGS[k]; return fresh;
+}
+function saveSettings(){
+  try{ localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings)); }catch(e){}
+}
+function applySettingsToUI(){
+  // Sync every checkbox in the Settings page from the live settings object — runs at startup
+  // (after settings are loaded from storage) so the UI matches what's actually in effect.
+  var map = { settingLoop:'loop', settingAutoNext:'autoNext', settingShuffle:'shuffle',
+    settingSilent:'silent', settingAutoLandscape:'autoLandscape',
+    settingRevealAnim:'revealAnim', settingShowNames:'showNames' };
+  for(var id in map){
+    var el = document.getElementById(id);
+    if(el) el.checked = !!settings[map[id]];
+  }
+  // Silent PiP mode is a 2-option radio group ('capture' = audio-free helper, 'direct' = floats over apps)
+  var radios = document.querySelectorAll('input[name="silentPipMode"]');
+  for(var i=0;i<radios.length;i++){ radios[i].checked = (radios[i].value === settings.silentPipMode); }
+}
+var settings = loadSettings();
+applySettingsToUI();
 
 var mysteryEmojis = ['🎬','🎭','🎪','🎨','🎯','🎸','🎵','🚀','🌈','🔮','🎁','💎','🦄','🎮','🍿','⚡','🌙','🎺','🏆','🎠','🎡','🧩','🪄','🎆','🔥','💫','🌟','🎃','🍭','🧸','🐉','🦊','🎤','🛸','🌊','🎧','🪩','🫧','🦋','🍀'];
 var gradients = [
@@ -601,6 +660,35 @@ function isVideoFile(f) {
 // Real folder structure is URL-encoded with %2F for / and %3A for :
 // Desktop Chrome gives: FolderName/SubFolder/file.mp4
 
+// Fast root-only check used to skip subfolder files BEFORE expensive URL decoding /
+// extractRealPath / createObjectURL. Operates on raw webkitRelativePath using only string ops.
+// Returns true if the file appears to be at the top level of the picked folder.
+function isAtRootFast(f) {
+  var raw = f.webkitRelativePath || '';
+  if (!raw) return true; // no path info — treat as root
+  // SAF format: anything after "/document/<prefix>:" with at most one "%2F" remaining is at root
+  var docIdx = raw.indexOf('/document/');
+  if (docIdx !== -1) {
+    var docPart = raw.substring(docIdx + 10);
+    var colonIdx = docPart.indexOf('%3A'); // encoded ':'
+    if (colonIdx === -1) return true;
+    var afterPrefix = docPart.substring(colonIdx + 3);
+    // afterPrefix looks like "Folder%2Ffile.mp4" (root) or "Folder%2FSub%2Ffile.mp4" (subfolder)
+    var firstSlash = afterPrefix.indexOf('%2F');
+    if (firstSlash === -1) return true;
+    return afterPrefix.indexOf('%2F', firstSlash + 3) === -1;
+  }
+  // Desktop format: count slashes — exactly one means "Folder/file" (root)
+  var slashes = 0;
+  for (var i = 0; i < raw.length; i++) {
+    if (raw.charCodeAt(i) === 47) { // '/'
+      slashes++;
+      if (slashes > 1) return false;
+    }
+  }
+  return slashes === 1;
+}
+
 function extractRealPath(f) {
   var raw = f.webkitRelativePath || '';
   if (!raw) return f.name; // no path info at all — just the filename
@@ -666,43 +754,60 @@ function analyzeFiles(fileList) {
 }
 
 function processFiles(rawFiles, fromFolder) {
+  // Show an immediate loading toast for large file lists so the user knows the app is working.
+  // Android's folder picker enumerates ALL subfolders at the OS level before handing files to JS,
+  // and that wait can already feel long — adding our processing on top with no feedback makes it
+  // feel broken. The setTimeout(0) yields to the browser so the toast actually paints before we
+  // start chewing through the list. We say "items" rather than "videos" because rawFiles includes
+  // images, documents, and everything else the OS handed back — only some of which are videos.
+  var fileCount = rawFiles.length;
+  if (fileCount > 50) {
+    showSwipeToast('Scanning folder (' + fileCount + ' items)…', 60000);
+  }
+  setTimeout(function(){ processFilesInner(rawFiles, fromFolder); }, fileCount > 50 ? 30 : 0);
+}
+
+function processFilesInner(rawFiles, fromFolder) {
   var inclSub = document.getElementById('includeSubfolders').checked;
   var allFiles = Array.from(rawFiles);
 
-  var videoFiles = allFiles.filter(function(f) {
-    if (f.name === '.nomedia' || f.name.startsWith('.')) return false;
-    return isVideoFile(f);
-  });
-
-  var info = analyzeFiles(videoFiles);
-
-  // Apply subfolder filter
-  var files;
-  if (fromFolder && !inclSub && info.hasSubfolders) {
-    files = [];
-    info.pathMap.forEach(function(item) {
-      if (item.parentDir === '') files.push(item.file);
-    });
-  } else {
-    files = videoFiles;
+  // First pass: filter hidden + non-video + (when subfolders excluded) subfolder files.
+  // Doing the subfolder skip HERE means we never call extractRealPath or createObjectURL for
+  // files we're going to throw away. With thousands of files in deep subfolders, this is a
+  // significant memory + time win because each createObjectURL allocates a tracked blob URL.
+  var videoFiles = [];
+  var subfolderSkipped = 0;
+  for (var i = 0; i < allFiles.length; i++) {
+    var f = allFiles[i];
+    if (f.name === '.nomedia' || f.name.charAt(0) === '.') continue;
+    if (!isVideoFile(f)) continue;
+    if (fromFolder && !inclSub && !isAtRootFast(f)) {
+      subfolderSkipped++;
+      continue;
+    }
+    videoFiles.push(f);
   }
 
-  // Info toast
-  if (fromFolder && videoFiles.length > 0) {
+  // Path analysis runs only on the kept files (not the discarded subfolder ones)
+  var info = analyzeFiles(videoFiles);
+  var files = videoFiles;
+
+  // Info toast — replaces the "Reading…" toast from above
+  if (fromFolder && allFiles.length > 0) {
     var diagMsg = 'Loaded ' + files.length + ' videos';
-    if (!inclSub && info.subCount > 0) diagMsg += '\n(' + info.subCount + ' in subfolders excluded)';
+    if (!inclSub && subfolderSkipped > 0) diagMsg += '\n(' + subfolderSkipped + ' in subfolders excluded)';
     else if (inclSub && info.subCount > 0) diagMsg += ' (incl. ' + info.subCount + ' from subfolders)';
     showSwipeToast(diagMsg, 2000);
   }
 
   if (files.length === 0) {
-    if (info.subCount > 0) {
-      alert('All ' + videoFiles.length + ' videos are in subfolders.\nTurn ON "Include Subfolders" to load them.');
+    if (subfolderSkipped > 0) {
+      alert('All ' + subfolderSkipped + ' videos are in subfolders.\nTurn ON "Include Subfolders" to load them.');
     } else {
       var sample = allFiles.slice(0, 3).map(function(f) {
         return f.name + ' → ' + extractRealPath(f);
       }).join('\n');
-      alert('No video files found!\n' + allFiles.length + ' files.\n\n' + sample);
+      alert('No video files found!\n' + allFiles.length + ' items in this folder, none are videos.\n\nSample:\n' + sample);
     }
     return;
   }
@@ -1100,6 +1205,7 @@ function openPlayer(index) {
   currentIndex = index;
   document.getElementById('playerTitle').textContent = entry.name;
   document.getElementById('loopBtn').classList.toggle('loop-active', settings.loop);
+  applySilent(); // sync mute state + button before play
   overlay.classList.add('open');
   overlay.classList.remove('controls-hidden');
   document.body.classList.add('player-active');
@@ -1110,6 +1216,12 @@ function openPlayer(index) {
   ytFrame.classList.add('hidden'); ytFrame.src='';
   document.getElementById('ytCard').classList.remove('active');
   currentYouTubeId = null;
+  // Tear down any existing silent PiP from a previous clip — Chrome auto-closes it within ~100ms
+  // anyway when the captureStream goes dead, so we just do it cleanly upfront.
+  if(typeof silentPipVideo!=='undefined' && silentPipVideo && document.pictureInPictureElement===silentPipVideo){
+    document.exitPictureInPicture().catch(function(){});
+  }
+  if(typeof cleanupSilentPip==='function') cleanupSilentPip();
   // PiP button: only available for real video (not YouTube cards) and only if browser supports it
   if(typeof pipSupported!=='undefined'){
     document.getElementById('pipBtn').style.display=(pipSupported && entry.type!=='youtube')?'flex':'none';
@@ -1140,6 +1252,7 @@ function openPlayer(index) {
     video.loop = settings.loop;
     video.play().catch(function(){});
   }
+
   updatePlayPause();
   renderPlaylist();
   startControlsTimer();
@@ -1147,9 +1260,11 @@ function openPlayer(index) {
 }
 
 function closePlayer() {
-  // If PiP is active, let the floating window keep playing — the user can browse the library in the background
+  // If PiP is active, let the floating window keep playing — the user can browse the library in the background.
+  // For silent PiP, the helper element is in pictureInPictureElement; the original video must stay playing
+  // (muted, off-screen) to keep feeding its captured stream to the helper.
   var inPip = !!document.pictureInPictureElement || (video.webkitPresentationMode==='picture-in-picture');
-  if(!inPip){ video.pause(); video.src=''; }
+  if(!inPip){ video.pause(); video.src=''; cleanupSilentPip(); }
   ytFrame.src='';
   document.getElementById('ytCard').classList.remove('active');
   currentYouTubeId = null;
@@ -1169,7 +1284,31 @@ video.addEventListener('play',updatePlayPause);
 video.addEventListener('pause',updatePlayPause);
 video.addEventListener('ended',function(){if(!settings.loop&&settings.autoNext)playNext();});
 
-function toggleLoop(){settings.loop=!settings.loop;video.loop=settings.loop;document.getElementById('loopBtn').classList.toggle('loop-active',settings.loop);document.getElementById('settingLoop').checked=settings.loop;}
+function toggleLoop(){settings.loop=!settings.loop;video.loop=settings.loop;document.getElementById('loopBtn').classList.toggle('loop-active',settings.loop);document.getElementById('settingLoop').checked=settings.loop;saveSettings();}
+
+// ── SILENT MODE ──
+// On Android Chrome, video.muted=true makes the browser skip claiming MediaSession / audio focus,
+// so other apps (Spotify, podcasts) keep playing uninterrupted while the video plays silently.
+// Some browsers (Firefox) also expose audioTracks — we disable those when available for full audio bypass.
+function applySilent(){
+  video.muted = settings.silent;
+  video.volume = settings.silent ? 0 : 1;
+  // Firefox-only — actually disables audio decoding when supported
+  if(video.audioTracks && video.audioTracks.length){
+    for(var i=0;i<video.audioTracks.length;i++){ try{ video.audioTracks[i].enabled = !settings.silent; }catch(e){} }
+  }
+  var btn = document.getElementById('silentBtn');
+  btn.classList.toggle('silent-active', settings.silent);
+  btn.textContent = settings.silent ? '🔇' : '🔊';
+  var setBox = document.getElementById('settingSilent');
+  if(setBox) setBox.checked = settings.silent;
+}
+function toggleSilent(){
+  settings.silent = !settings.silent;
+  applySilent();
+  saveSettings();
+  showSwipeToast(settings.silent ? '🔇 Silent — audio channel free for other apps' : '🔊 Audio on', 1400);
+}
 function skipBack(){if(currentPlayerType==='video')video.currentTime=Math.max(0,video.currentTime-10);}
 function skipForward(){if(currentPlayerType==='video')video.currentTime=Math.min(video.duration||0,video.currentTime+10);}
 
@@ -1212,15 +1351,114 @@ document.addEventListener('fullscreenchange',function(){document.getElementById(
 // ── PICTURE IN PICTURE ──
 // Works on: Android Chrome/Edge/Opera/Samsung (standard API), desktop Chrome/Edge/Firefox/Safari,
 // and iOS Safari (webkit fallback). iframes (YouTube) can't be popped — we hide the button for them.
+//
+// Silent-PiP problem: on Android, PiP windows expose play/pause controls which require an active
+// MediaSession at the OS level. Chrome force-creates that session even if the video is muted, which
+// kills your podcast/music. The workaround is to feed PiP from a video element that has NO audio
+// track at all — we captureStream() the original, remove its audio tracks, and PiP a hidden helper.
 var pipSupported = (('pictureInPictureEnabled' in document) && document.pictureInPictureEnabled)
   || (typeof video.webkitSetPresentationMode === 'function');
 if(!pipSupported) document.getElementById('pipBtn').style.display='none';
+var captureStreamSupported = !!(video.captureStream || video.mozCaptureStream);
+
+var silentPipVideo = null;   // hidden helper element used for audio-free PiP
+var silentPipStream = null;  // its MediaStream (audio tracks stripped)
+
+function clearMediaSession(){
+  // Defensive: clear OS-level media session metadata + handlers so PiP has less to attach to
+  if('mediaSession' in navigator){
+    try{ navigator.mediaSession.metadata = null; }catch(e){}
+    try{ navigator.mediaSession.playbackState = 'none'; }catch(e){}
+    ['play','pause','seekto','seekforward','seekbackward','previoustrack','nexttrack','stop'].forEach(function(a){
+      try{ navigator.mediaSession.setActionHandler(a, null); }catch(e){}
+    });
+  }
+}
+
+function cleanupSilentPip(){
+  if(silentPipStream){
+    try{ silentPipStream.getTracks().forEach(function(t){ try{t.stop();}catch(e){} }); }catch(e){}
+    silentPipStream = null;
+  }
+  if(silentPipVideo){
+    try{ silentPipVideo.pause(); silentPipVideo.srcObject = null; }catch(e){}
+  }
+}
+
+function enterSilentPiP(){
+  // Build an audio-stripped stream from the visible video and PiP a hidden helper that owns it
+  var grab = video.captureStream ? video.captureStream.bind(video) : (video.mozCaptureStream ? video.mozCaptureStream.bind(video) : null);
+  if(!grab){ return false; }
+  try{
+    silentPipStream = grab();
+  }catch(e){ return false; }
+  // Strip audio tracks — without these, Android has nothing to claim audio focus for
+  var audioTracks = silentPipStream.getAudioTracks ? silentPipStream.getAudioTracks() : [];
+  audioTracks.forEach(function(t){ try{ silentPipStream.removeTrack(t); t.stop(); }catch(e){} });
+  if(!silentPipStream.getVideoTracks || silentPipStream.getVideoTracks().length === 0){
+    cleanupSilentPip();
+    return false;
+  }
+
+  if(!silentPipVideo){
+    silentPipVideo = document.createElement('video');
+    silentPipVideo.muted = true;
+    silentPipVideo.autoplay = true;
+    silentPipVideo.playsInline = true;
+    silentPipVideo.setAttribute('playsinline','');
+    // No fixed width/height — let the element take the captured stream's intrinsic dimensions
+    // so PiP gets the correct aspect ratio. Position far offscreen and make it transparent.
+    silentPipVideo.style.cssText = 'position:fixed;left:-99999px;top:-99999px;opacity:0;pointer-events:none;';
+    document.body.appendChild(silentPipVideo);
+    silentPipVideo.addEventListener('leavepictureinpicture', function(){
+      document.getElementById('pipBtn').classList.remove('pip-active');
+      cleanupSilentPip();
+      // If the main overlay was already closed, fully stop the source video too
+      if(!overlay.classList.contains('open')){ try{ video.pause(); video.src=''; }catch(e){} }
+    });
+  }
+  silentPipVideo.srcObject = silentPipStream;
+  clearMediaSession();
+
+  var doPip = function(){
+    silentPipVideo.requestPictureInPicture().then(function(){
+      document.getElementById('pipBtn').classList.add('pip-active');
+      showSwipeToast('🔇📺 Silent PiP — audio free, browser-only', 1600);
+      clearMediaSession(); // re-clear after PiP attaches
+    }).catch(function(e){
+      cleanupSilentPip();
+      // Don't surface raw DOMException text — caller will fall back to direct PiP if it wants
+      // (a friendly toast is shown there instead). Log to console for debugging.
+      try{ console.warn('Silent PiP request failed:', e); }catch(_){}
+    });
+  };
+  // Wait for the helper to actually have video dimensions before requesting PiP — otherwise
+  // PiP grabs whatever default size the empty <video> had and the result looks stretched.
+  var startPlaybackThenPip = function(){
+    silentPipVideo.play().then(doPip).catch(doPip);
+  };
+  if(silentPipVideo.videoWidth>0 && silentPipVideo.videoHeight>0){
+    startPlaybackThenPip();
+  }else{
+    silentPipVideo.addEventListener('loadedmetadata', startPlaybackThenPip, { once:true });
+    // Safety net: if metadata never fires within 1.5s, try anyway
+    setTimeout(function(){ if(!document.pictureInPictureElement) startPlaybackThenPip(); }, 1500);
+  }
+  return true;
+}
 
 function togglePictureInPicture(){
   if(currentPlayerType!=='video'){showSwipeToast('PiP works for videos only\n(not YouTube embeds)',1500);return;}
   if(!video.src){showSwipeToast('Nothing to pop out');return;}
+  // Don't try PiP while the video is still loading the new src — captureStream and
+  // requestPictureInPicture both throw mid-load, which surfaces as confusing error toasts.
+  // readyState 2 = HAVE_CURRENT_DATA (we have at least one frame to show).
+  if(video.readyState < 2){
+    showSwipeToast('Loading… try PiP again in a moment', 1400);
+    return;
+  }
   try{
-    // Already in PiP — exit
+    // Already in PiP — exit (pictureInPictureElement is the helper in silent mode, original otherwise)
     if(document.pictureInPictureElement){
       document.exitPictureInPicture().catch(function(){});
       return;
@@ -1230,11 +1468,33 @@ function togglePictureInPicture(){
       return;
     }
     // Enter PiP — standard API (Android Chrome, desktop)
-    if(document.pictureInPictureEnabled && video.requestPictureInPicture){
+    if(document.pictureInPictureEnabled){
       var go=function(){
-        video.requestPictureInPicture().catch(function(e){
-          showSwipeToast('PiP blocked: '+(e&&e.message?e.message:'unknown'),1800);
-        });
+        // Only use the audio-stripped helper PiP when:
+        //   silent mode is on, captureStream is supported, AND user chose "Free audio (browser only)"
+        // If silent helper succeeds, we're done. If it fails, we silently fall through to direct PiP
+        // (no toast about the silent attempt — the direct PiP path will surface its own status).
+        var triedSilent = false;
+        if(settings.silent && captureStreamSupported && settings.silentPipMode==='capture'){
+          triedSilent = true;
+          if(enterSilentPiP()) return;
+        }
+        // Direct PiP path — defensively mute and clear MediaSession before requesting
+        if(video.requestPictureInPicture){
+          if(settings.silent){ try{ video.muted = true; video.volume = 0; }catch(e){} }
+          clearMediaSession();
+          video.requestPictureInPicture().then(function(){
+            if(settings.silent && triedSilent){
+              showSwipeToast('📺 Floating PiP (silent helper unavailable)', 1500);
+            } else if(settings.silent){
+              showSwipeToast('📺 PiP over apps — audio may briefly switch', 1500);
+            }
+          }).catch(function(e){
+            try{ console.warn('PiP request failed:', e); }catch(_){}
+            // Friendly user-facing message — most common cause is the video not being ready
+            showSwipeToast(video.readyState < 2 ? 'Video still loading — try again' : 'PiP unavailable right now', 1600);
+          });
+        }
       };
       // Most browsers refuse PiP while fullscreen — exit first
       if(document.fullscreenElement||document.webkitFullscreenElement){
@@ -1243,13 +1503,13 @@ function togglePictureInPicture(){
       }else{go();}
       return;
     }
-    // iOS Safari fallback
+    // iOS Safari fallback (no captureStream/PiP-element-swap available — best effort)
     if(typeof video.webkitSetPresentationMode==='function'){
       video.webkitSetPresentationMode('picture-in-picture');
       return;
     }
     showSwipeToast('PiP not supported on this browser');
-  }catch(e){showSwipeToast('PiP error: '+e.message);}
+  }catch(e){ try{ console.warn('PiP toggle error:', e); }catch(_){}; showSwipeToast('PiP unavailable right now',1500); }
 }
 video.addEventListener('enterpictureinpicture',function(){document.getElementById('pipBtn').classList.add('pip-active');showSwipeToast('📺 Picture-in-Picture',900);});
 video.addEventListener('leavepictureinpicture',function(){
@@ -1337,6 +1597,7 @@ document.addEventListener('keydown',function(e){
   else if(e.key===' '){e.preventDefault();togglePlay();}
   else if(e.key==='f'||e.key==='F')toggleLandscapeFullscreen();
   else if(e.key==='p'||e.key==='P')togglePictureInPicture();
+  else if(e.key==='m'||e.key==='M')toggleSilent();
   else if(e.key==='Escape')closePlayer();
 });
 
